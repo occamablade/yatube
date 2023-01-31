@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}
+    Yatube
+{% endblock %}
+{% block content %}
+  <h1>Ваши Подписки</h1>
+    <hr>
+    {% include 'posts/includes/switcher.html' %}
+    {% for post in page_obj %}
+      {% include 'posts/includes/post_list.html' with show_group=True %}
+      <br>
+    {% empty %}
+      <p>Вы не подписаны на авторов</p>
+    {% endfor %}
+  {% include 'posts/includes/paginator.html' %}
+{% endblock %}
