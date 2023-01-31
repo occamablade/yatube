@@ -19,6 +19,12 @@ class TaskCreateFormTests(TestCase):
             slug='test_slug',
             description='Тестовое описание'
         )
+        cls.post = Post.objects.create(
+            text='foo',
+            group=cls.group,
+            author=cls.user
+        )
+        cls.post_id = cls.post.id
 
     def setUp(self):
         self.guest_client = Client()

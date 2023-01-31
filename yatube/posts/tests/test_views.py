@@ -164,7 +164,7 @@ class PostsViewsTest(TestCase):
     def test_cache(self):
         """ Проверка работы кеша на главной странице. """
         post = Post.objects.create(
-            author=self.test_user,
+            author=self.user,
             text='Тестовый пост_Кэш',
             group=self.group,
             image=None
@@ -247,13 +247,18 @@ class PaginatorViewsTest(TestCase):
         cls.client = Client()
 
     def test_paginator(self):
-        namespace_list = {
-            'posts:index': reverse('posts:index'),
-            'posts:group_list': reverse(
-                'posts:group_list', kwargs={'slug': self.group.slug}),
-            'posts:profile': reverse(
-                'posts:profile', kwargs={'username': self.user.username}),
+        url_names = {
+            reverse('posts:index'): POST_ON_PAGE,
+            reverse(
+                'posts:group_list',
+                kwargs={'slug': self.group.slug}
+            ): POST_ON_PAGE,
+            reverse(
+                'posts:profile',
+                args=[self.user]
+            ): POST_ON_PAGE,
         }
-        for template, reverse_name in namespace_list.items():
-            response = self.client.get(reverse_name)
-            self.assertEqual(len(response.context['page_obj']), POST_ON_PAGE)
+        for value, expected in url_names.items():
+            with self.subTest(value=value):
+                response = self.client.get(value + '?page=1')
+                self.assertEqual(len(response.context['page_obj']), expected)
