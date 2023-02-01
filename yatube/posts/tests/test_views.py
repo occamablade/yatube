@@ -5,6 +5,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 from django import forms
 from posts.models import Group, Post, Follow
+from posts.forms import PostForm
 
 from yatube.settings import POST_ON_PAGE
 
@@ -105,7 +106,6 @@ class PostsViewsTest(TestCase):
                 kwargs={"slug": self.group.slug}
             )
         )
-
         self.check_context_contains_page_or_post(response.context)
         self.assertIn('group', response.context)
         group = response.context['group']
@@ -120,30 +120,27 @@ class PostsViewsTest(TestCase):
         )
         self.check_context_contains_page_or_post(response.context, post=True)
 
-    def test_post_create_page_show_correct_context(self):
-        """Шаблон post_create сформирован с правильным контекстом."""
-        response = self.auth_client.get(reverse('posts:post_create'))
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.fields.ChoiceField,
-        }
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field, expected)
-
-    def test_post_edit_page_show_correct_context(self):
-        """Шаблон post_edit сформирован с правильным контекстом."""
-        response = self.auth_client.get(reverse(
-            'posts:post_edit', args=(self.post.pk,)))
-        form_fields = {
-            'text': forms.fields.CharField,
-            'group': forms.fields.ChoiceField,
-        }
-        for value, expected in form_fields.items():
-            with self.subTest(value=value):
-                form_field = response.context.get('form').fields.get(value)
-                self.assertIsInstance(form_field, expected)
+    def test_post_edit_and_create_show_correct_context(self):
+        """Шаблон edit и create сформирован с правильным контекстом."""
+        form_fields = (
+            ('text', forms.fields.CharField),
+            ('group', forms.fields.ChoiceField),
+        )
+        create_or_edit = (
+            ('posts:post_create', None),
+            ('posts:post_edit', (self.post.id,)),
+        )
+        for address, arg in create_or_edit:
+            with self.subTest(address=address):
+                response = self.auth_client.get(
+                    reverse(address, args=arg)
+                )
+                self.assertIn('form', response.context)
+                self.assertIsInstance(response.context['form'], PostForm)
+                for value, expected in form_fields:
+                    with self.subTest(value=value):
+                        field = response.context.get('form').fields.get(value)
+                        self.assertIsInstance(field, expected)
 
     def test_profile_use_correct_context(self):
         response = self.auth_client.get(
@@ -238,12 +235,15 @@ class PaginatorViewsTest(TestCase):
             slug="test-slug",
             title="Тестовое название"
         )
-        for post_number in range(13):
-            cls.post = Post.objects.create(
-                text='Тестовый текст',
+        Post.objects.bulk_create(
+            Post(
+                text=f'Пост {number}',
                 author=cls.user,
-                group=cls.group
+                group=cls.group,
             )
+            for number in range(POST_ON_PAGE + 3)
+        )
+
         cls.client = Client()
 
     def test_paginator(self):
@@ -258,7 +258,14 @@ class PaginatorViewsTest(TestCase):
                 args=[self.user]
             ): POST_ON_PAGE,
         }
-        for value, expected in url_names.items():
-            with self.subTest(value=value):
-                response = self.client.get(value + '?page=1')
-                self.assertEqual(len(response.context['page_obj']), expected)
+        pages = (
+            (1, 10),
+            (2, 3)
+        )
+        for url in url_names:
+            for page, expected_count in pages:
+                response = self.client.get(url, {"page": page})
+                self.assertEqual(
+                    len(response.context['page_obj']),
+                    expected_count
+                )
