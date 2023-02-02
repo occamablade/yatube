@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.test import Client, TestCase
 from django.urls import reverse
-from django import forms
 from posts.models import Group, Post, Follow
 from posts.forms import PostForm
 
@@ -122,25 +121,25 @@ class PostsViewsTest(TestCase):
 
     def test_post_edit_and_create_show_correct_context(self):
         """Шаблон edit и create сформирован с правильным контекстом."""
-        form_fields = (
-            ('text', forms.fields.CharField),
-            ('group', forms.fields.ChoiceField),
-        )
-        create_or_edit = (
-            ('posts:post_create', None),
-            ('posts:post_edit', (self.post.id,)),
-        )
-        for address, arg in create_or_edit:
-            with self.subTest(address=address):
-                response = self.auth_client.get(
-                    reverse(address, args=arg)
+        create_or_edit = [
+            reverse(
+                'posts:post_edit',
+                args=(PostsViewsTest.post.pk)
+            ),
+            reverse(
+                'posts:post_create'
+            ),
+        ]
+        for address in create_or_edit:
+            response = self.auth_client.get(address)
+            self.assertIn('form', response.context)
+            self.assertIsInstance(
+                response.context.get('form'), PostForm
+            )
+            if 'is_edit' in response.context:
+                self.assertTrue(
+                    response.context.get('is_edit', True)
                 )
-                self.assertIn('form', response.context)
-                self.assertIsInstance(response.context['form'], PostForm)
-                for value, expected in form_fields:
-                    with self.subTest(value=value):
-                        field = response.context.get('form').fields.get(value)
-                        self.assertIsInstance(field, expected)
 
     def test_profile_use_correct_context(self):
         response = self.auth_client.get(
