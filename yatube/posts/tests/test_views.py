@@ -124,7 +124,7 @@ class PostsViewsTest(TestCase):
         create_or_edit = [
             reverse(
                 'posts:post_edit',
-                args=(PostsViewsTest.post.pk)
+                args={self.post.id}
             ),
             reverse(
                 'posts:post_create'
