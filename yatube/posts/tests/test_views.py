@@ -121,25 +121,22 @@ class PostsViewsTest(TestCase):
 
     def test_post_edit_and_create_show_correct_context(self):
         """Шаблон edit и create сформирован с правильным контекстом."""
-        create_or_edit = [
-            reverse(
+        create_or_edit_urls = (
+            (reverse('posts:post_create'), False),
+            (reverse(
                 'posts:post_edit',
-                args={self.post.id}
-            ),
-            reverse(
-                'posts:post_create'
-            ),
-        ]
-        for address in create_or_edit:
-            response = self.auth_client.get(address)
-            self.assertIn('form', response.context)
-            self.assertIsInstance(
-                response.context.get('form'), PostForm
-            )
-            if 'is_edit' in response.context:
-                self.assertTrue(
-                    response.context.get('is_edit', True)
-                )
+                kwargs={'post_id': self.post.id}),
+                True)
+        )
+        for url, is_edit_value in create_or_edit_urls:
+            with self.subTest(name=url):
+                response = self.auth_client.get(url)
+                self.assertIn('form', response.context)
+                self.assertIsInstance(response.context['form'], PostForm)
+                self.assertIn('is_edit', response.context)
+                is_edit = response.context['is_edit']
+                self.assertIsInstance(is_edit, bool)
+                self.assertEqual(is_edit, is_edit_value)
 
     def test_profile_use_correct_context(self):
         response = self.auth_client.get(
