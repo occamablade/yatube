@@ -9,11 +9,13 @@
     <article>
     <ul>
       <li>Автор: {{ post.author.get_full_name }}
+        <dd>
         <a href="{% url 'posts:profile' post.author %}">все посты пользователя</a>
+        </dd>
       </li>
       <li>Дата публикации: {{ post.pub_date|date:"d E Y" }}</li>
     </ul>
-    {% thumbnail post.image "300x300" crop="center" upscale=True as im %}
+    {% thumbnail post.image "200x100" crop="center" upscale=True as im %}
     <img class="card-img my-2" src="{{ im.url }}">
     {% endthumbnail %}
     <p>{{ post.text }}</p>
