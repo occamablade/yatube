@@ -20,6 +20,10 @@
         <a class="nav-link {% if view_name  == 'posts:post_create' %}active{% endif %}"
           href="{% url 'posts:post_create' %}">Новая запись</a>
       </li>
+      <li>
+        <a class="nav-link link-dark {% if view_name  == 'posts:profile' %}active{% endif %}"
+          href="{% url 'posts:profile' user.username %}">{{ request.user.get_full_name }}</a>
+      <li>
       <li class="nav-item">
         <a class="nav-link link-light {% if view_name  == 'users:password_change_form' %}active{% endif %}"
           href="{% url 'users:password_change_form' %}">Изменить пароль</a>
@@ -28,9 +32,6 @@
         <a class="nav-link link-light {% if view_name  == 'users:logout' %}active{% endif %}"
           href="{% url 'users:logout' %}">Выйти</a>
       </li>
-      <li>
-        Пользователь: {{ request.user }}
-      <li>
         {% else %}
       <li class="nav-item">
         <a class="nav-link link-light {% if view_name  == 'users:login' %}active{% endif %}"

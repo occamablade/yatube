@@ -3,6 +3,7 @@
     Yatube
 {% endblock %}
 {% block content %}
+<div class="container py-4"> 
   <h1>Ваши Подписки</h1>
     <hr>
     {% include 'posts/includes/switcher.html' %}
@@ -13,4 +14,5 @@
       <p>Вы не подписаны на авторов</p>
     {% endfor %}
   {% include 'posts/includes/paginator.html' %}
+</div>
 {% endblock %}

@@ -22,7 +22,7 @@
         <p>
           {{ post.text|linebreaksbr|truncatechars:500 }} 
         </p>
-        <a href="{% url 'posts:post_detail' post.id %}" class="list-group-item-action">Читать далее </a>
+        <a href="{% url 'posts:post_detail' post.pk %}">Перейти к посту </a>
       {% endautoescape %}
     </li>
   </div>
