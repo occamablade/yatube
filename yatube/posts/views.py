@@ -48,7 +48,7 @@ def profile(request, username):
 
 def post_detail(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
-    comments = Comment.objects.select_related('post')
+    comments = post.comments.all()
     form = CommentForm(request.POST or None)
     context = {
         "post": post,
@@ -106,6 +106,35 @@ def add_comment(request, post_id):
         comment.post = post
         comment.save()
     return redirect('posts:post_detail', post_id=post_id)
+
+
+@login_required
+def comment_edit(request, comment_id):
+    comment = get_object_or_404(Comment, pk=comment_id)
+    if request.user != comment.author:
+        return redirect('posts:post_detail', comment.post.pk)
+
+    form = CommentForm(request.POST or None, files=request.FILES or None,
+                       instance=comment)
+    if form.is_valid():
+        form.save()
+        return redirect('posts:post_detail', comment.post.pk)
+    return render(request, 'posts/comment_edit.html', {'form': form})
+
+
+@login_required
+def comment_delete(request, comment_id, post_id):
+    Comment.objects.get(author=request.user, pk=comment_id).delete()
+    return redirect('posts:post_detail', post_id=post_id)
+
+
+@login_required
+def post_delete(request, post_id):
+    post = get_object_or_404(Post, pk=post_id)
+    if request.user != post.author:
+        return redirect('posts:post_detail', post.pk,)
+    post.delete()
+    return redirect('posts:profile', post.author)
 
 
 @login_required

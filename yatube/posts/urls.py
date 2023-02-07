@@ -7,6 +7,7 @@ from . import views
 app_name = "posts"
 
 urlpatterns = [
+    path('posts/<int:post_id>/delete/', views.post_delete, name='post_delete'),
     path("", views.index, name="index"),
     path("group/<slug:slug>/", views.group_posts, name="group_list"),
     path("profile/<str:username>/", views.profile, name="profile"),
@@ -29,4 +30,10 @@ urlpatterns = [
         'profile/<str:username>/unfollow/',
         views.profile_unfollow,
         name='profile_unfollow'),
+    path('comment/<int:comment_id>/comment_edit/',
+         views.comment_edit,
+         name='comment_edit'),
+    path('posts/<int:post_id>/comment/<int:comment_id>/delete/',
+         views.comment_delete,
+         name='comment_delete'),
 ]
