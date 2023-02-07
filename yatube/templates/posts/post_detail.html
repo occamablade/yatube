@@ -12,12 +12,10 @@
           </li>
           {% if post.group %}
           <li class="list-group-item">
-            Группа: {{ post.group.title }}
-            <p>
+            Группа: 
             <a href="{% url 'posts:group_list' post.group.slug %}">
-              все записи группы
+            {{ post.group.title }}
             </a>
-            </p>
           </li>
             {% endif %}
           <li class="list-group-item">

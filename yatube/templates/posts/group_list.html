@@ -14,6 +14,7 @@
         </dd>
       </li>
       <li>Дата публикации: {{ post.pub_date|date:"d E Y" }}</li>
+      <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
     </ul>
     {% thumbnail post.image "200x100" crop="center" upscale=True as im %}
     <img class="card-img my-2" src="{{ im.url }}">
@@ -21,7 +22,6 @@
     <p>{{ post.text }}</p>
     <a href="{% url 'posts:post_detail' post.pk %}">подробная информация</a>
   </article>
-    <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы</a>
     {% if not forloop.last %}
     <hr>{% endif %}
     {% endfor %}

@@ -29,6 +29,14 @@
           Дата публикации: {{ post.pub_date|date:"d E Y" }}
         </li>
       </ul>
+      {% if post.group %}
+      <ul>
+        <li>
+          Все записи группы: 
+          <a href="{% url 'posts:group_list' post.group.slug %}"> {{ post.group.title }}</a>
+        </li>
+      </ul>
+      {% endif %}
       {% thumbnail post.image "300x300" crop="center" upscale=True as im %}
       <img class="card-img my-2" src="{{ im.url }}">
       {% endthumbnail %}
@@ -37,9 +45,6 @@
       </p>
       <a href="{% url 'posts:post_detail' post.pk %}">Перейти к посту</a>
     </article>
-    {% if post.group %}
-    <a href="{% url 'posts:group_list' post.group.slug %}">Все записи группы</a>
-    {% endif %}
     {% if not forloop.last %}
     <hr>{% endif %}
     {% empty %}
